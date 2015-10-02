@@ -1,0 +1,10 @@
+{
+  "applications": {
+    "_default": {
+      "link": "sgs-dev2"
+    },
+    "sgs-dev2": {
+      "applicationId": "VH89F2LblJbYNaxEWR94ASSvduut7NwWyG12IhFn"
+    }
+  }
+}
