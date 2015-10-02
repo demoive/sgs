@@ -15,17 +15,21 @@ app.post('/twilio-webhook',
 });
 
 function parseMessageBody(body, from) {
-  var command = body.split(' ')[0];
+  var tokens = body.split(' ');
+  var command = tokens[0];
+  var groupName = tokens[1].toUpperCase();
+  console.log(body,command,groupName, tokens[2]);
+  
   switch(command){
-    case "CREATE-GROUP":
+    case "CREATE":
       console.log("command:", "CREATE");
-      createGroup(body.split(' ')[1]);
+      createGroup(groupName);
       break;
     case "POST":
-      postGroup(body.split(' ')[1], body.split(' ')[2]);
+      postGroup(groupName, body.substr(5 + groupName.length));
       break;
     case "SUBSCRIBE":
-      subscribeToGroup(body.split(' ')[1], from);
+      subscribeToGroup(groupName, from);
       break;
     default:
   }
@@ -43,13 +47,24 @@ function createGroup(groupName) {
 
 function postGroup(groupName, message) {
    var Groups = Parse.Object.extend("Groups");
-
+   console.log(groupName, message);
   var query = new Parse.Query(Groups);
   query.equalTo("group_name", groupName);
   query.first({
     success: function(object) { 
-    var subscribers = object["subscribers"];
-    for(i = 0; i < subscribers.length; ++i) console.log(subscribers[i], ' ');
+    var subscribers = object.get("subscribers");
+    console.log(subscribers);
+    for(i = 0; i < subscribers.length; ++i) {
+      console.log(subscribers[i], ' ');
+      twilio.sendSMS({
+        From: "+441777322027",
+        To: subscribers[i],
+        Body: message
+      }, {
+        success: function(httpResponse) { response.success("SMS sent!"); },
+        error: function(httpResponse) { response.error("Uh oh, something went wrong"); }
+      });
+    }
 
  },
     error: function(groupName, error) { console.log("Adding subscriber failed :", userNumber, error.message); }
