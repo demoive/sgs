@@ -16,8 +16,8 @@ app.post('/twilio-webhook',
 
 function parseMessageBody(body, from) {
   var tokens = body.split(' ');
-  var command = tokens[0];
-  var groupName = tokens[1].toUpperCase();
+  var command = tokens[0].toUpperCase();
+  var groupName = tokens[1];
   console.log(body,command,groupName, tokens[2]);
   
   switch(command){
@@ -59,7 +59,7 @@ function postGroup(groupName, message) {
       twilio.sendSMS({
         From: "+441777322027",
         To: subscribers[i],
-        Body: message
+        Body: groupName + ": " + message
       }, {
         success: function(httpResponse) { response.success("SMS sent!"); },
         error: function(httpResponse) { response.error("Uh oh, something went wrong"); }
