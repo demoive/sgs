@@ -66,10 +66,10 @@ function postGroup(groupName, message) {
                     Body: groupName + ": " + message
                 }, {
                     success: function(httpResponse) {
-                        response.success("SMS sent!");
+                        httpResponse.success("SMS sent!");
                     },
                     error: function(httpResponse) {
-                        response.error("Uh oh, something went wrong");
+                        httpResponse.error("Uh oh, something went wrong");
                     }
                 });
             }
@@ -89,7 +89,25 @@ function subscribeToGroup(groupName, userNumber) {
     query.first({
         success: function(groups) {
             groups.addUnique("subscribers", userNumber);
-            groups.save();
+            groups.save(null, {
+                            success: function() {
+                                twilio.sendSMS({
+                                    From: "+441777322027",
+                                    To: userNumber,
+                                    Body: "You have successfully subscribed to the group " + groupName
+                                }, {
+                                    success: function() {
+                                        alert("A subscription confirmation has been successfully sent.");
+                                    },
+                                    error: function() {
+                                        alert("Uh oh, something went wrong");
+                                    }
+                                });
+                            },
+                            error: function(groupName, error) {
+                                console.log("Group not created :", groupName, error.message);
+                            }
+                        });
         },
         error: function(groupName, error) {
             console.log("Adding subscriber failed :", userNumber, error.message);
