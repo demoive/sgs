@@ -19,6 +19,7 @@ function parseMessageBody(body, from) {
 
     switch (command) {
         case "CREATE":
+        case "NEW":
             console.log("command:", "CREATE");
             createGroup(groupName, from);
             break;
