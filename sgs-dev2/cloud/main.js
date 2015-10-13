@@ -115,4 +115,57 @@ function subscribeToGroup(groupName, userNumber) {
     });
 }
 
+function unsubscribeFromGroup(groupName, userNumber) {
+    var Groups = Parse.Object.extend("Groups");
+
+    var query = new Parse.Query(Groups);
+    query.equalTo("group_name", groupName);
+    query.first({
+        success: function(groups) {
+            var subscribers = groups.get("subscribers");
+            for (i = 0; i < subscribers.length; ++i) {
+                if(subscribers[i] == userNumber) {
+                    groups.remove("subscribers", userNumber);
+                    groups.save(null, {
+                                    success: function() {
+                                        twilio.sendSMS({
+                                            From: "+441777322027",
+                                            To: userNumber,
+                                            Body: "You have successfully unsubscribed from the group " + groupName
+                                        }, {
+                                            success: function() {
+                                                alert("A subscription confirmation has been successfully sent.");
+                                            },
+                                            error: function() {
+                                                alert("Uh oh, something went wrong. No confirmation message has been sent.");
+                                            }
+                                        });
+                                    },
+                                    error: function(groupName, error) {
+                                        console.log("You are not subscribed to the group :", groupName, error.message);
+                                    }
+                                });
+                    return; 
+                }
+            }
+            twilio.sendSMS({
+                From: "+441777322027",
+                To: userNumber,
+                Body: "You are not subscribed to the group " + groupName
+            }, {
+                success: function() {
+                    alert("A message has been successfully sent.");
+                },
+                error: function() {
+                    alert("Uh oh, something went wrong. No confirmation message has been sent.");
+                }
+            });
+
+        },
+        error: function(groupName, error) {
+            console.log("Deleting subscriber failed :", userNumber, error.message);
+        }
+    });
+}
+
 app.listen();
