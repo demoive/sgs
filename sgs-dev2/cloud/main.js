@@ -28,6 +28,9 @@ function parseMessageBody(body, from) {
         case "SUBSCRIBE":
             subscribeToGroup(groupName, from);
             break;
+        case "UNSUBSCRIBE":
+            unsubscribeFromGroup(groupName, from);
+            break;
         default:
     }
 }
